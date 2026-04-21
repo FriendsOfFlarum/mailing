@@ -54,13 +54,13 @@
         font-weight: 600;
         display: inline-block;
         padding: 0.1em 0.5em;
-        border-radius: @border-radius;
-        background: @control-bg;
-        color: @control-color;
+        border-radius: var(--border-radius);
+        background: var(--control-bg);
+        color: var(--control-color);
         text-transform: none;
 
         &.colored {
-            color: @body-bg !important;
+            color: var(--body-bg) !important;
         }
     }
 
@@ -79,8 +79,8 @@
 
 .FofMailingSentModal {
     .MailingShipping {
-        background: @alert-success-bg;
-        color: @alert-success-color;
+        background: var(--alert-success-bg);
+        color: var(--alert-success-color);
         font-size: 70px;
         padding: 30px;
         overflow: hidden;
