@@ -11,8 +11,8 @@
     "type": "flarum-extension",
     "license": "MIT",
     "require": {
-        "php": "^8.0",
-        "flarum/core": "^1.8"
+        "php": "^8.2",
+        "flarum/core": "^2.0.0"
     },
     "replace": {
         "kilowhat/flarum-ext-mailing": "*",
@@ -56,7 +56,10 @@
                 "name": "fas fa-envelope",
                 "backgroundColor": "#e74c3c",
                 "color": "#fff"
-            }
+            },
+            "optional-dependencies": [
+                "fof/user-directory"
+            ]
         },
         "flagrow": {
             "discuss": "https://discuss.flarum.org/d/20443"
@@ -69,8 +72,9 @@
         }
     },
     "require-dev": {
-        "flarum/phpstan": "*",
-        "flarum/testing": "^1.0.0"
+        "flarum/phpstan": "^2.0.0",
+        "flarum/testing": "^2.0.0",
+        "fof/user-directory": "^2.0.0"
     },
     "scripts": {
         "analyse:phpstan": "phpstan analyse",
@@ -94,5 +98,7 @@
         "psr-4": {
             "FoF\\Mailing\\Tests\\": "tests/"
         }
-    }
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
 }

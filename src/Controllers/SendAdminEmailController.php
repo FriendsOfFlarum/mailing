@@ -77,20 +77,19 @@ class SendAdminEmailController implements RequestHandlerInterface
 
         $subject = (string) Arr::get($data, 'subject');
         $text = (string) Arr::get($data, 'text');
-        $html = (bool) Arr::get($data, 'asHtml');
 
         $recipientCount = 0;
 
-        $userQuery->chunk(50, function ($users) use ($subject, $text, $html, &$recipientCount) {
+        $userQuery->chunk(50, function ($users) use ($subject, $text, &$recipientCount) {
             foreach ($users as $user) {
-                $this->queue->push(new SendMail($user->email, $subject, $text, $html));
+                $this->queue->push(new SendMail($user->email, $user->display_name, $subject, $text));
 
                 $recipientCount++;
             }
         });
 
         foreach ($emails as $email) {
-            $this->queue->push(new SendMail($email, $subject, $text, $html));
+            $this->queue->push(new SendMail($email, $email, $subject, $text));
 
             $recipientCount++;
         }

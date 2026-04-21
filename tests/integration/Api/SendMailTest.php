@@ -18,6 +18,8 @@ use Flarum\Testing\integration\TestCase;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
 
 class SendMailTest extends TestCase
 {
@@ -39,7 +41,7 @@ class SendMailTest extends TestCase
         $this->setting('forum_title', 'TestForum');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -87,7 +89,7 @@ class SendMailTest extends TestCase
     protected function grantPermission(string $permission): void
     {
         $this->prepareDatabase([
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'Mailer', 'name_plural' => 'Mailers'],
             ],
             'group_user' => [
@@ -99,9 +101,7 @@ class SendMailTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cannot_send_mail()
     {
         $response = $this->send(
@@ -120,9 +120,7 @@ class SendMailTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_without_permissions_cannot_send_to_individual()
     {
         $response = $this->send(
@@ -141,9 +139,7 @@ class SendMailTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_without_permissions_cannot_send_to_group()
     {
         $response = $this->send(
@@ -162,9 +158,7 @@ class SendMailTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_mail_individual_can_send_to_individual()
     {
         $this->grantPermission('fof-mailing.mail-individual');
@@ -194,9 +188,7 @@ class SendMailTest extends TestCase
         $this->assertStringContainsString('Hello', $mails[0]['message']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_mail_individual_cannot_send_to_group()
     {
         $this->grantPermission('fof-mailing.mail-individual');
@@ -217,9 +209,7 @@ class SendMailTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_mail_all_can_send_to_group()
     {
         $this->grantPermission('fof-mailing.mail-all');
@@ -240,9 +230,7 @@ class SendMailTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_mail_all_cannot_send_to_individual_only()
     {
         $this->grantPermission('fof-mailing.mail-all');
@@ -264,10 +252,8 @@ class SendMailTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
-    public function plain_text_mail_uses_text_plain_content_type()
+    #[Test]
+    public function mail_is_sent_as_multipart_with_both_parts()
     {
         $this->grantPermission('fof-mailing.mail-individual');
         $this->captureMail();
@@ -278,9 +264,8 @@ class SendMailTest extends TestCase
                 'json'            => [
                     'data' => [
                         'recipients' => [['type' => 'users', 'id' => '2']],
-                        'subject'    => 'Plain',
-                        'text'       => 'Hello world',
-                        'asHtml'     => false,
+                        'subject'    => 'Hi',
+                        'text'       => "Hello <b>world</b>\nsecond line",
                     ],
                 ],
             ])
@@ -288,40 +273,15 @@ class SendMailTest extends TestCase
 
         $mails = $this->sentMails();
         $this->assertCount(1, $mails);
+        // Flarum 2.x's Mailer respects the admin-wide `mail_format` setting and defaults to multipart.
         $this->assertStringContainsString('Content-Type: text/plain', $mails[0]['message']);
-        $this->assertStringNotContainsString('Content-Type: text/html', $mails[0]['message']);
-    }
-
-    /**
-     * @test
-     */
-    public function html_mail_uses_text_html_content_type()
-    {
-        $this->grantPermission('fof-mailing.mail-individual');
-        $this->captureMail();
-
-        $this->send(
-            $this->request('POST', '/api/admin-mail', [
-                'authenticatedAs' => 2,
-                'json'            => [
-                    'data' => [
-                        'recipients' => [['type' => 'users', 'id' => '2']],
-                        'subject'    => 'HTML',
-                        'text'       => '<p>Hello <b>world</b></p>',
-                        'asHtml'     => true,
-                    ],
-                ],
-            ])
-        );
-
-        $mails = $this->sentMails();
-        $this->assertCount(1, $mails);
         $this->assertStringContainsString('Content-Type: text/html', $mails[0]['message']);
+        // Admin-authored body is HTML-escaped in the html part, with newlines converted to <br />.
+        $this->assertStringContainsString('Hello &lt;b&gt;world&lt;/b&gt;', $mails[0]['message']);
+        $this->assertStringContainsString('<br />', $mails[0]['message']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function empty_subject_falls_back_to_default_subject_translation()
     {
         $this->grantPermission('fof-mailing.mail-individual');
@@ -345,9 +305,7 @@ class SendMailTest extends TestCase
         $this->assertStringContainsString('Subject: [TestForum] Message from forum administration', $mails[0]['message']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_with_no_recipients_gets_validation_error()
     {
         $response = $this->send(

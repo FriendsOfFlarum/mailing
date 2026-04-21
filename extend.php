@@ -11,25 +11,33 @@
 
 namespace FoF\Mailing;
 
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Extend;
 
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/resources/less/forum.less'),
+        ->css(__DIR__.'/resources/less/forum.less')
+        ->jsDirectory(__DIR__.'/js/dist/forum'),
+
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
+
     new Extend\Locales(__DIR__.'/resources/locale'),
+
+    (new Extend\View())
+        ->namespace('fof-mailing', __DIR__.'/resources/views'),
+
     (new Extend\Routes('api'))
         ->post('/admin-mail', 'fof.mailing.create-mail', Controllers\SendAdminEmailController::class),
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attributes(function (ForumSerializer $serializer): array {
-            $actor = $serializer->getActor();
 
-            return [
-                'fofMailingCanMailAll'        => $actor->can('fof-mailing.mail-all'),
-                'fofMailingCanMailIndividual' => $actor->can('fof-mailing.mail-individual'),
-            ];
-        }),
+    (new Extend\ApiResource(Resource\ForumResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('fofMailingCanMailAll')
+                ->get(fn (object $forum, Context $context) => $context->getActor()->can('fof-mailing.mail-all')),
+            Schema\Boolean::make('fofMailingCanMailIndividual')
+                ->get(fn (object $forum, Context $context) => $context->getActor()->can('fof-mailing.mail-individual')),
+        ]),
 ];

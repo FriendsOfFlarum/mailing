@@ -1,6 +1,6 @@
 import app from 'flarum/forum/app';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 
 interface SentModalAttrs extends IInternalModalAttrs {
   recipientsCount: number;
@@ -17,7 +17,12 @@ export default class SentModal extends Modal<SentModalAttrs> {
 
   content() {
     return [
-      m('.MailingShipping', icon('fas fa-shipping-fast')),
+      m(
+        '.MailingShipping',
+        Icon.component({
+          name: 'fas fa-shipping-fast',
+        })
+      ),
       m('.Modal-body', [
         m(
           'h1',
