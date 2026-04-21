@@ -14,12 +14,11 @@ namespace FoF\Mailing\Tests\unit\Jobs;
 use FoF\Mailing\Jobs\SendMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class SendMailTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function job_implements_should_queue()
     {
         $job = new SendMail('user@example.com', 'Subject', 'Body');
@@ -27,9 +26,7 @@ class SendMailTest extends TestCase
         $this->assertInstanceOf(ShouldQueue::class, $job);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function job_accepts_html_flag()
     {
         $job = new SendMail('user@example.com', 'Subject', '<p>Body</p>', true);
