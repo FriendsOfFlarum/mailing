@@ -1,21 +1,20 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
 import { Vnode } from 'mithril';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Group from 'flarum/common/models/Group';
 import User from 'flarum/common/models/User';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import Email from '../models/Email';
-interface EmailUserModalAttrs extends IInternalModalAttrs {
+interface EmailUserModalAttrs extends IFormModalAttrs {
     user?: User;
     forAll?: boolean;
 }
 type Recipient = Group | User | Email;
-export default class EmailUserModal extends Modal<EmailUserModalAttrs> {
+export default class EmailUserModal extends FormModal<EmailUserModalAttrs> {
     sending: boolean;
     recipients: Recipient[];
     subject: string;
     messageText: string;
-    asHtml: boolean;
     searchIndex: number;
     navigator: KeyboardNavigatable;
     filter: string;
@@ -25,10 +24,10 @@ export default class EmailUserModal extends Modal<EmailUserModalAttrs> {
     searchTimeout: number;
     oninit(vnode: Vnode): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     onready(): void;
     recipientLabel(recipient: Recipient): any;
-    searchResultKind(recipient: Recipient): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    searchResultKind(recipient: Recipient): string | any[];
     selectResult(result: Recipient | null): void;
     content(): any;
     performNewSearch(): void;
