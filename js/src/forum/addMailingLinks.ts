@@ -44,7 +44,7 @@ export default function () {
     }
   });
 
-  const userDirectory = flarum.extensions['fof-user-directory'];
+  const userDirectory = flarum.extensions['fof-user-directory'] as any;
   if (userDirectory && userDirectory.UserDirectoryPage) {
     extend(userDirectory.UserDirectoryPage.prototype, 'actionItems', (items) => {
       if ((app.forum as any).fofMailingCanMailAll()) {
