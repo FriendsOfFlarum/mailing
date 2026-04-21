@@ -6,5 +6,4 @@ parameters:
   paths:
     - extend.php
     - src
-  checkMissingIterableValueType: false
   databaseMigrationsPath: ['migrations']
