@@ -13,6 +13,10 @@ namespace FoF\Mailing;
 
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 
 return [
     (new Extend\Frontend('forum'))
@@ -23,6 +27,7 @@ return [
     new Extend\Locales(__DIR__.'/resources/locale'),
     (new Extend\Routes('api'))
         ->post('/admin-mail', 'fof.mailing.create-mail', Controllers\SendAdminEmailController::class),
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(ForumSerializer::class))
         ->attributes(function (ForumSerializer $serializer): array {
             $actor = $serializer->getActor();
