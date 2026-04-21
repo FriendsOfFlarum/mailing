@@ -3,20 +3,17 @@ import app from 'flarum/forum/app';
 import Button from 'flarum/common/components/Button';
 import UserControls from 'flarum/forum/utils/UserControls';
 import SessionDropdown from 'flarum/forum/components/SessionDropdown';
-import EmailUserModal from './components/EmailUserModal';
 
 export default function () {
   extend(UserControls, 'moderationControls', (items, user) => {
-    if ((app.forum as any).fofMailingCanMailIndividual()) {
+    if (app.forum.fofMailingCanMailIndividual()) {
       items.add(
         'fof-mailing',
         Button.component(
           {
             icon: 'fas fa-envelope',
             onclick() {
-              app.modal.show(EmailUserModal, {
-                user,
-              });
+              app.modal.show(() => import('./components/EmailUserModal'), { user });
             },
           },
           app.translator.trans('fof-mailing.forum.links.mail_individual')
@@ -26,16 +23,14 @@ export default function () {
   });
 
   extend(SessionDropdown.prototype, 'items', (items) => {
-    if ((app.forum as any).fofMailingCanMailAll()) {
+    if (app.forum.fofMailingCanMailAll()) {
       items.add(
         'fof-mailing',
         Button.component(
           {
             icon: 'fas fa-envelope',
             onclick() {
-              app.modal.show(EmailUserModal, {
-                forAll: true,
-              });
+              app.modal.show(() => import('./components/EmailUserModal'), { forAll: true });
             },
           },
           app.translator.trans('fof-mailing.forum.links.mail_all')
@@ -43,28 +38,4 @@ export default function () {
       );
     }
   });
-
-  const userDirectory = flarum.extensions['fof-user-directory'] as any;
-  if (userDirectory && userDirectory.UserDirectoryPage) {
-    extend(userDirectory.UserDirectoryPage.prototype, 'actionItems', (items) => {
-      if ((app.forum as any).fofMailingCanMailAll()) {
-        items.add(
-          'fof-mailing',
-          Button.component(
-            {
-              className: 'Button',
-              icon: 'fas fa-envelope',
-              onclick() {
-                app.modal.show(EmailUserModal, {
-                  forAll: true,
-                });
-              },
-            },
-            app.translator.trans('fof-mailing.forum.links.mail_all')
-          ),
-          10
-        );
-      }
-    });
-  }
 }

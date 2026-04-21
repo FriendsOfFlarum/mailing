@@ -15,6 +15,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Translation\Translator;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Mailer;
 use Illuminate\Mail\Message;
 
@@ -24,18 +25,34 @@ class SendMail implements ShouldQueue
 
     public function __construct(
         protected string $email,
+        protected string $displayName,
         protected string $subject,
-        protected string $text,
-        protected bool $html = false
+        protected string $text
     ) {
     }
 
-    public function handle(SettingsRepositoryInterface $settings, Mailer $mailer, Translator $translator): void
+    public function handle(SettingsRepositoryInterface $settings, Mailer $mailer, Translator $translator, Factory $view): void
     {
-        $mailer->send([], [], function (Message $message) use ($settings, $translator) {
-            $message->setBody($this->text, $this->html ? 'text/html' : 'text/plain');
-            $message->to($this->email);
-            $message->subject('['.$settings->get('forum_title').'] '.($this->subject !== '' ? $this->subject : $translator->get('fof-mailing.email.default_subject')));
-        });
+        $forumTitle = $settings->get('forum_title');
+        $userEmail = $this->email;
+        $username = $this->displayName;
+
+        $view->share(compact('forumTitle', 'userEmail', 'username'));
+
+        $infoContent = $this->text;
+
+        $subject = '['.$forumTitle.'] '.($this->subject !== '' ? $this->subject : $translator->get('fof-mailing.email.default_subject'));
+
+        $mailer->send(
+            [
+                'text' => 'fof-mailing::emails.plain.adminMail',
+                'html' => 'fof-mailing::emails.html.adminMail',
+            ],
+            compact('infoContent'),
+            function (Message $message) use ($subject) {
+                $message->to($this->email);
+                $message->subject($subject);
+            }
+        );
     }
 }

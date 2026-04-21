@@ -21,16 +21,8 @@ class SendMailTest extends TestCase
     #[Test]
     public function job_implements_should_queue()
     {
-        $job = new SendMail('user@example.com', 'Subject', 'Body');
+        $job = new SendMail('user@example.com', 'User', 'Subject', 'Body');
 
         $this->assertInstanceOf(ShouldQueue::class, $job);
-    }
-
-    #[Test]
-    public function job_accepts_html_flag()
-    {
-        $job = new SendMail('user@example.com', 'Subject', '<p>Body</p>', true);
-
-        $this->assertInstanceOf(SendMail::class, $job);
     }
 }

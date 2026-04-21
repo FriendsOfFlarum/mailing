@@ -3,7 +3,6 @@ import app from 'flarum/forum/app';
 import { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
-import Switch from 'flarum/common/components/Switch';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Group from 'flarum/common/models/Group';
 import User from 'flarum/common/models/User';
@@ -28,7 +27,6 @@ export default class EmailUserModal extends FormModal<EmailUserModalAttrs> {
   recipients: Recipient[] = [];
   subject: string = '';
   messageText: string = '';
-  asHtml: boolean = false;
   searchIndex: number = 0;
   navigator: KeyboardNavigatable = new KeyboardNavigatable();
   filter: string = '';
@@ -245,18 +243,6 @@ export default class EmailUserModal extends FormModal<EmailUserModalAttrs> {
             }),
           ]),
           m('.Form-group', [
-            Switch.component(
-              {
-                state: this.asHtml,
-                onchange: (value: boolean) => {
-                  this.asHtml = value;
-                },
-                disabled: this.sending,
-              },
-              app.translator.trans('fof-mailing.forum.modal_mail.as_html_label')
-            ),
-          ]),
-          m('.Form-group', [
             Button.component(
               {
                 type: 'submit',
@@ -375,7 +361,6 @@ export default class EmailUserModal extends FormModal<EmailUserModalAttrs> {
             }),
             subject: this.subject,
             text: this.messageText,
-            asHtml: this.asHtml,
           },
         },
       })

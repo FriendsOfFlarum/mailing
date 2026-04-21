@@ -253,7 +253,7 @@ class SendMailTest extends TestCase
     }
 
     #[Test]
-    public function plain_text_mail_uses_text_plain_content_type()
+    public function mail_is_sent_as_multipart_with_both_parts()
     {
         $this->grantPermission('fof-mailing.mail-individual');
         $this->captureMail();
@@ -264,9 +264,8 @@ class SendMailTest extends TestCase
                 'json'            => [
                     'data' => [
                         'recipients' => [['type' => 'users', 'id' => '2']],
-                        'subject'    => 'Plain',
-                        'text'       => 'Hello world',
-                        'asHtml'     => false,
+                        'subject'    => 'Hi',
+                        'text'       => "Hello <b>world</b>\nsecond line",
                     ],
                 ],
             ])
@@ -274,33 +273,12 @@ class SendMailTest extends TestCase
 
         $mails = $this->sentMails();
         $this->assertCount(1, $mails);
+        // Flarum 2.x's Mailer respects the admin-wide `mail_format` setting and defaults to multipart.
         $this->assertStringContainsString('Content-Type: text/plain', $mails[0]['message']);
-        $this->assertStringNotContainsString('Content-Type: text/html', $mails[0]['message']);
-    }
-
-    #[Test]
-    public function html_mail_uses_text_html_content_type()
-    {
-        $this->grantPermission('fof-mailing.mail-individual');
-        $this->captureMail();
-
-        $this->send(
-            $this->request('POST', '/api/admin-mail', [
-                'authenticatedAs' => 2,
-                'json'            => [
-                    'data' => [
-                        'recipients' => [['type' => 'users', 'id' => '2']],
-                        'subject'    => 'HTML',
-                        'text'       => '<p>Hello <b>world</b></p>',
-                        'asHtml'     => true,
-                    ],
-                ],
-            ])
-        );
-
-        $mails = $this->sentMails();
-        $this->assertCount(1, $mails);
         $this->assertStringContainsString('Content-Type: text/html', $mails[0]['message']);
+        // Admin-authored body is HTML-escaped in the html part, with newlines converted to <br />.
+        $this->assertStringContainsString('Hello &lt;b&gt;world&lt;/b&gt;', $mails[0]['message']);
+        $this->assertStringContainsString('<br />', $mails[0]['message']);
     }
 
     #[Test]
