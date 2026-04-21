@@ -1,16 +1,25 @@
 <?php
 
-namespace ClarkWinkelmann\Mailing\Controllers;
+/*
+ * This file is part of fof/mailing.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Mailing\Controllers;
 
 use Flarum\Foundation\ValidationException;
 use Flarum\Group\Group;
 use Flarum\Http\RequestUtil;
 use Flarum\User\UserRepository;
+use FoF\Mailing\Jobs\SendMail;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
-use ClarkWinkelmann\Mailing\Jobs\SendMail;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,16 +29,16 @@ class SendAdminEmailController implements RequestHandlerInterface
 {
     public function __construct(
         protected UserRepository $users,
-        protected Queue          $queue)
-    {
+        protected Queue $queue
+    ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
 
-        $data = (array)Arr::get($request->getParsedBody(), 'data');
-        $recipients = collect((array)Arr::get($data, 'recipients'));
+        $data = (array) Arr::get($request->getParsedBody(), 'data');
+        $recipients = collect((array) Arr::get($data, 'recipients'));
 
         $userIds = $recipients->filter(function ($model) {
             return Arr::get($model, 'type') === 'users';
@@ -38,7 +47,7 @@ class SendAdminEmailController implements RequestHandlerInterface
         })->toArray();
 
         $emails = $recipients->filter(function ($model) {
-            return Arr::get($model, 'type') === 'clarkwinkelmann-mailing-emails';
+            return Arr::get($model, 'type') === 'fof-mailing-emails';
         })->map(function ($model) {
             return Arr::get($model, 'attributes.email');
         })->toArray();
@@ -50,9 +59,9 @@ class SendAdminEmailController implements RequestHandlerInterface
         })->toArray();
 
         if (count($groupIds)) {
-            $actor->assertCan('kilowhat-mailing.mail-all');
+            $actor->assertCan('fof-mailing.mail-all');
         } else {
-            $actor->assertCan('kilowhat-mailing.mail-individual');
+            $actor->assertCan('fof-mailing.mail-individual');
         }
 
         $userQuery = $this->users->query();
@@ -62,13 +71,13 @@ class SendAdminEmailController implements RequestHandlerInterface
         if (!in_array(Group::MEMBER_ID, $groupIds)) {
             $userQuery->whereIn('id', $userIds)
                 ->orWhereHas('groups', function (Builder $query) use ($groupIds) {
-                    $query->whereIn('id', $groupIds);
+                    $query->whereIn('groups.id', $groupIds);
                 });
         }
 
-        $subject = (string)Arr::get($data, 'subject');
-        $text = (string)Arr::get($data, 'text');
-        $html = (bool)Arr::get($data, 'asHtml');
+        $subject = (string) Arr::get($data, 'subject');
+        $text = (string) Arr::get($data, 'text');
+        $html = (bool) Arr::get($data, 'asHtml');
 
         $recipientCount = 0;
 
@@ -88,14 +97,12 @@ class SendAdminEmailController implements RequestHandlerInterface
 
         if ($recipientCount === 0) {
             /**
-             * @var $translator Translator
+             * @var Translator $translator
              */
             $translator = resolve(Translator::class);
 
             throw new ValidationException([
-                'recipients' => [
-                    $translator->get('kilowhat-mailing.api.no_recipients'),
-                ],
+                'recipients' => $translator->get('fof-mailing.api.no_recipients'),
             ]);
         }
 

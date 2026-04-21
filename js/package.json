@@ -1,14 +1,22 @@
 {
-    "name": "@clarkwinkelmann/mailing",
     "private": true,
-    "dependencies": {
-        "flarum-tsconfig": "^1.0",
+    "name": "@fof/mailing",
+    "devDependencies": {
+        "flarum-tsconfig": "^1.0.2",
         "flarum-webpack-config": "^2.0",
         "webpack": "^5.65",
-        "webpack-cli": "^4.9"
+        "webpack-cli": "^4.9",
+        "prettier": "^2.5.1",
+        "@flarum/prettier-config": "^1.0.0"
     },
     "scripts": {
         "dev": "webpack --mode development --watch",
-        "build": "webpack --mode production"
-    }
+        "build": "webpack --mode production",
+        "analyze": "cross-env ANALYZER=true yarn build",
+        "format": "prettier --write src",
+        "format-check": "prettier --check src",
+        "check-typings": "tsc --noEmit --emitDeclarationOnly false",
+        "check-typings-coverage": "typescript-coverage-report"
+    },
+    "prettier": "@flarum/prettier-config"
 }

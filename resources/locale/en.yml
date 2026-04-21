@@ -1,4 +1,4 @@
-clarkwinkelmann-mailing:
+fof-mailing:
     admin:
         permissions:
             mail_individual: Send emails to individual users
@@ -13,7 +13,7 @@ clarkwinkelmann-mailing:
             recipients_label: Recipients
             recipients_placeholder: Add more recipients...
             subject_label: Subject
-            default_subject: => clarkwinkelmann-mailing.ref.default_subject
+            default_subject: => fof-mailing.ref.default_subject
             message_label: Message
             as_html_label: Send as HTML
             submit_button: Send
@@ -29,7 +29,7 @@ clarkwinkelmann-mailing:
         no_recipients: No recipient were matched
 
     email:
-        default_subject: => clarkwinkelmann-mailing.ref.default_subject
+        default_subject: => fof-mailing.ref.default_subject
 
     ref:
         default_subject: Message from forum administration
