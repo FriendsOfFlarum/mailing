@@ -43,6 +43,6 @@ This extension was originally developed by [Clark Winkelmann](https://clarkwinke
 
 - [Packagist](https://packagist.org/packages/fof/mailing)
 - [GitHub](https://github.com/FriendsOfFlarum/mailing)
-- [Discuss](https://discuss.flarum.org/d/20443)
+- [Discuss](https://discuss.flarum.org/d/39128)
 
 An extension by [FriendsOfFlarum](https://github.com/FriendsOfFlarum).
