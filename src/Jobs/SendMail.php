@@ -11,24 +11,31 @@
 
 namespace FoF\Mailing\Jobs;
 
+use Flarum\Queue\AbstractJob;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Mailer;
 use Illuminate\Mail\Message;
 
-class SendMail implements ShouldQueue
+/**
+ * Extends core's AbstractJob so admins can route mailings onto their own
+ * queue with `(new Extend\Queue())->route(SendMail::class, 'emails')`.
+ *
+ * That matters for large mailings: this job is pushed once per recipient, so
+ * on the default queue every worker in the pool opens an SMTP connection at
+ * once. A dedicated queue with a small worker count caps concurrent
+ * connections to the mail relay independently of the rest of the queue.
+ */
+class SendMail extends AbstractJob
 {
-    use Queueable;
-
     public function __construct(
         protected string $email,
         protected string $displayName,
         protected string $subject,
         protected string $text
     ) {
+        parent::__construct();
     }
 
     public function handle(SettingsRepositoryInterface $settings, Mailer $mailer, Translator $translator, Factory $view): void
