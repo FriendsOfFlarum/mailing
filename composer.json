@@ -12,7 +12,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "flarum/core": "2.x-dev"
+        "flarum/core": "^2.0.0-rc.6 || 2.x-dev"
     },
     "replace": {
         "kilowhat/flarum-ext-mailing": "*",
